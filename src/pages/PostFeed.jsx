@@ -12,7 +12,9 @@ function PostFeed() {
   const error = useSelector(getPostsError);
 
   useEffect(() => {
-    dispatch(getPosts());
+    if (!posts.length) {
+      dispatch(getPosts());
+    }
   }, []);
 
   useEffect(() => {
@@ -23,12 +25,14 @@ function PostFeed() {
 
   if (status === 'loading') {
     return (
-      <h1 className="w-11/12 max-w-4xl mx-auto md:flex md:gap-4">Loading...</h1>
+      <div className='min-h-screen grid place-items-center'>
+        <div className='w-6 aspect-square border-t border-t-black rounded-full animate-spin'></div>
+      </div>
     )
   }
   return (
     status === 'succeeded' && (
-      <main className="w-11/12 max-w-4xl mx-auto md:flex md:gap-4">
+      <main className="w-11/12 max-w-4xl mx-auto py-8 md:flex md:gap-4">
         <section className='space-y-6 md:flex-[0.7]'>
           {
             posts.length && posts.slice(0, 10).map(post => (

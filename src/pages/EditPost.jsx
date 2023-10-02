@@ -1,34 +1,43 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAllUsers } from '../features/users/usersSlice';
-import { getPostsError } from '../features/posts/postsSlice';
-import { createPost } from '../actions/postsActions';
+import { updatePost } from '../actions/postsActions';
+import { selectPostById } from '../features/posts/postsSlice';
 
-function AddPost() {
+function EditPost() {
+  const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const users = useSelector(selectAllUsers);
-  const error = useSelector(getPostsError);
+  const post = useSelector((state) => selectPostById(state, Number(id)));
 
-  const [title, setTitle] = useState('');
-  const [userId, setUserId] = useState('');
-  const [body, setBody] = useState('');
+  const [title, setTitle] = useState(post?.title);
+  const [userId, setUserId] = useState(post?.userId);
+  const [body, setBody] = useState(post?.body);
 
-  const canPost = title.trim() && userId.trim() && body.trim();
+  const canPost = title && userId && body;
 
   const submitHandler = (e) => {
     e.preventDefault();
 
     if (canPost) {
-      dispatch(createPost({userId: +userId, title, body}));
+      dispatch(
+        updatePost({
+          id,
+          userId: +userId,
+          title,
+          body,
+          reactions: post.reactions
+        })
+      );
     }
 
     setTitle('');
     setUserId('');
     setBody('');
 
-    navigate('/');
+    navigate(`/${post.id}`);
   }
 
   return (
@@ -82,4 +91,4 @@ function AddPost() {
   );
 }
 
-export default AddPost;
+export default EditPost;

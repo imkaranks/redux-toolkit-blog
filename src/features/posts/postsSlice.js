@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getPosts, createPost } from "../../actions/postsActions";
+import { getPosts, createPost, updatePost, deletePost } from "../../actions/postsActions";
 
 const initialState = {
   status: 'idle',
@@ -53,6 +53,31 @@ const postsSlice = createSlice({
       .addCase(createPost.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
+      })
+      .addCase(updatePost.pending, (state, action) => {
+        state.status = 'loading';
+      })
+      .addCase(updatePost.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        const existingPostIndex = state.posts.findIndex(post => post.id === action.payload.id);
+        if (existingPostIndex !== -1) {
+          state.posts.splice(existingPostIndex, 1, action.payload);
+        }
+      })
+      .addCase(updatePost.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(deletePost.pending, (state, action) => {
+        state.status = 'loading';
+      })
+      .addCase(deletePost.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.posts = state.posts.filter(post => post.id !== action.payload);
+      })
+      .addCase(deletePost.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
       });
   }
 });
@@ -60,6 +85,8 @@ const postsSlice = createSlice({
 export const { addReaction } = postsSlice.actions;
 
 export const selectAllPosts = (state) => state.posts.posts;
+export const selectPostById = (state, postId) =>
+  state.posts.posts.find(post => post.id === postId);
 export const getPostsStatus = (state) => state.posts.status;
 export const getPostsError = (state) => state.posts.error;
 
